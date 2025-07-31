@@ -3,12 +3,15 @@ const choices = Array.from(document.getElementsByClassName("choice-text"));
 const progressText = document.getElementById("progressText");
 const scoreText = document.getElementById("score");
 const ProgressBarFull = document.getElementById("progressBarFull");
+const submitBtn = document.getElementById("submit-btn");
 
 let currentQuestion = {};
 let acceptingAnswers = true;
 let score = 0;
 let questionCounter = 0;
 let availableQuestions = [];
+let userAnswers = []
+let currentSelectedAnswer = null
 let questions = [
     {
         question: "What is the capital of France?",
@@ -179,14 +182,14 @@ const max_questions = 10;
 startGame = () => {
     questionCounter = 0;
     score = 0;
+    userAnswers= []
     availableQuestions = [...questions];
     getNewQuestion();
 }
 getNewQuestion = () => {
 
     if (availableQuestions.length === 0 || questionCounter >= max_questions) {
-       localStorage.setItem("mostRecentScore", score.toString());
-        return window.location.assign("/end.html");
+      return
     }
     questionCounter++;
     progressText.innerText = `Question ${questionCounter}/${max_questions}`;
@@ -197,27 +200,20 @@ ProgressBarFull.style.width = `${(questionCounter / max_questions) * 100}%`;
     choices.forEach(choice => {
         const number = choice.dataset["number"];
         choice.innerText = currentQuestion["choice" + number];
+        choice.parentElement.classList.remove("selected", "correct" ," incorrect")
     });
     availableQuestions.splice(questionIndex, 1);
-    acceptingAnswers = true;
+  currentSelectedAnswer = null;
 };
 
 choices.forEach(choice => {
     choice.addEventListener("click", e => {
-        if (!acceptingAnswers) return;
-        acceptingAnswers = false;
+        choice.forEach(c => {
+            c.parentElement.classList.remove("selected")
+        });
         const selectedChoice = e.target;
-        const selectedAnswer = selectedChoice.dataset["number"];
-        const classToApply =
-            selectedAnswer == currentQuestion.answer[0] ? "correct" : "incorrect";
-        if (classToApply === "correct") {
-            incrementScore(correct_bonus);
-        }
-        selectedChoice.classList.add(classToApply);
-        setTimeout(() => {
-            selectedChoice.classList.remove(classToApply);
-        }, 1000);
-        getNewQuestion();
+        selectedChoice.parentElement.classList.add("selected")
+        currentSelectedAnswer = selectedChoice.dataset["number"]
     })
 })
 incrementScore = num => {

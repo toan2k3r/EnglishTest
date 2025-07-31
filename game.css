@@ -62,3 +62,20 @@ margin-top: 1.5rem;
    background-color: #56a5eb;
    width: 0%;
 }
+
+.submit-btn {
+    width: 100%;
+    font-size: 1.8rem;
+    padding: 1rem 0;
+    margin-top: 2rem;
+    text-align: center;
+    color:  white;
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.submit-btn:hover {
+background-color: #45a049;
+}
