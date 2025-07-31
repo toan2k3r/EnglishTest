@@ -10,8 +10,8 @@ let acceptingAnswers = true;
 let score = 0;
 let questionCounter = 0;
 let availableQuestions = [];
-let userAnswers = []
-let currentSelectedAnswer = null
+let userAnswers = [];
+let currentSelectedAnswer = null;
 let questions = [
     {
         question: "What is the capital of France?",
@@ -182,39 +182,77 @@ const max_questions = 10;
 startGame = () => {
     questionCounter = 0;
     score = 0;
-    userAnswers= []
+    userAnswers = []
     availableQuestions = [...questions];
     getNewQuestion();
 }
 getNewQuestion = () => {
 
     if (availableQuestions.length === 0 || questionCounter >= max_questions) {
-      return
+        return
     }
     questionCounter++;
     progressText.innerText = `Question ${questionCounter}/${max_questions}`;
-ProgressBarFull.style.width = `${(questionCounter / max_questions) * 100}%`;
+    ProgressBarFull.style.width = `${(questionCounter / max_questions) * 100}%`;
     const questionIndex = Math.floor(Math.random() * availableQuestions.length);
     currentQuestion = availableQuestions[questionIndex];
     question.innerText = currentQuestion.question;
     choices.forEach(choice => {
         const number = choice.dataset["number"];
         choice.innerText = currentQuestion["choice" + number];
-        choice.parentElement.classList.remove("selected", "correct" ," incorrect")
+        choice.parentElement.classList.remove("selected", "correct", " incorrect")
     });
     availableQuestions.splice(questionIndex, 1);
-  currentSelectedAnswer = null;
+    currentSelectedAnswer = null;
 };
 
 choices.forEach(choice => {
     choice.addEventListener("click", e => {
-        choice.forEach(c => {
+        choices.forEach(c => {
             c.parentElement.classList.remove("selected")
         });
         const selectedChoice = e.target;
         selectedChoice.parentElement.classList.add("selected")
         currentSelectedAnswer = selectedChoice.dataset["number"]
     })
+})
+
+submitBtn.addEventListener("click", () => {
+    if (submitBtn.textContent === " Submit") {
+        if (!currentSelectedAnswer) {
+            alert("Please select an answer before submisting!")
+            return
+        }
+    }
+    userAnswers.push({
+        question: currentQuestion.question,
+        userAnswers: parseInt(currentSelectedAnswer),
+        correctAnswer: currentQuestion.answer[0]
+    })
+    const isCorrect = parseInt(currentSelectedAnswer) === currentQuestion.answer[0]
+    const selectedChoice = document.querySelector('.choice-container.selected')
+    if (isCorrect) {
+        selectedChoice.classList.add("correct")
+        score += correct_bonus
+    } else {
+        selectedChoice.classList.add("incorrect")
+
+        const correctChoice = document.querySelector(`.choice-text[data-number="${currentQuestion.answer[0]}"]`).parentElement
+        correctChoice.classList.add("correct")
+    }
+    scoreText.innerText = score
+
+    choices.forEach(choice => {
+        choice.parentElement.style.pointerEvents = "none"
+    });
+    submitBtn.textContent = "Next Question"
+    submitBtn.onclick = () => {
+        if (questionCounter >= max_questions) {
+            localStorage.setItem("mostRecentScore", score.toString())
+            localStorage.setItem("userAnswers", JSON.stringify(userAnswers));
+            return window.location.assign("/end.html")
+        }
+    }
 })
 incrementScore = num => {
     score += num;
